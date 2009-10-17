@@ -25,7 +25,6 @@ gear_client.connect()
 gear_worker.connect()
 
 j = jid.internJID(config.CONF.get("xmpp", "jid"))
-print config.CONF.get("xmpp", "pass")
 xmppclient = XMPPClient(j, config.CONF.get("xmpp", "pass"), config.CONF.get("xmpp", "host"))
 xmppclient.logTraffic = False
 
