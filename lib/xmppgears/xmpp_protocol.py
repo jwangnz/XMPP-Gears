@@ -197,21 +197,24 @@ class XmppGearsRosterProtocol(RosterClientProtocol):
 
             self.removeItem(item.jid)
         else:
-            log.msg("RosterSet: %s" % item.jid.userhost())
+            jid = item.jid.userhost()
+            log.msg("RosterSet: %s" % jid)
             global roster_list
-            roster_list.append(item.jid.userhost())
+            if not jid in roster_list:
+                roster_list.append(jid)
 
     def onRosterRemove(self, entity):
-        log.msg("Roster %s removed" % entity.userhost())
+        jid = entity.userhost()
+        log.msg("Roster %s removed" % jid)
 
         global presence_conn
-        presence_conn._set_status(item.jid.userhost(), "unsubscribed")
+        presence_conn._set_status(jid, "unsubscribed")
     
         global roster_list
-        roster_list.remove(item.jid.userhost())
+        if jid in roster_list:
+            roster_list.remove(jid)
 
 def rosters():
-    log.msg("rosters")
     return roster_list
 
 def typing_notification(jid):
