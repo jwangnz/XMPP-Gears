@@ -10,5 +10,6 @@ port: 4730
 [xmpp]
 jid: bot@example.com/XmppGears
 pass: thepassword
+host: example.com
 priority: 25
 avatar: 320ab8a18220d43989f47b30b447d47165c7456a

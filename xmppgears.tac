@@ -17,14 +17,16 @@ from wokkel.disco import DiscoHandler
 from xmppgears import xmpp_protocol
 from xmppgears import gear_client
 from xmppgears import gear_worker
+from xmppgears import config
 
 application = service.Application("xmpp-gears")
 
 gear_client.connect()
 gear_worker.connect()
 
-j = jid.internJID("tsing@geowhy.org/xmppgears")
-xmppclient = XMPPClient(jid.internJID("tsing@geowhy.org/xmppgears"), "tsinghaha", "geowhy.org")
+j = jid.internJID(config.CONF.get("xmpp", "jid"))
+print config.CONF.get("xmpp", "pass")
+xmppclient = XMPPClient(j, config.CONF.get("xmpp", "pass"), config.CONF.get("xmpp", "host"))
 xmppclient.logTraffic = False
 
 protocols = [xmpp_protocol.XmppGearsMessageProtocol, xmpp_protocol.XmppGearsPresenceProtocol, xmpp_protocol.XmppGearsRosterProtocol ]
@@ -32,6 +34,6 @@ for p in protocols:
     handler = p(j)
     handler.setHandlerParent(xmppclient)
 
-VersionHandler("XmppGears", "0.1").setHandlerParent(xmppclient)
+VersionHandler("XmppGears", config.VERSION).setHandlerParent(xmppclient)
 KeepAlive().setHandlerParent(xmppclient)
 xmppclient.setServiceParent(application)
