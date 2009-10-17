@@ -21,6 +21,8 @@ message_conn = None
 presence_conn = None
 roster_conn = None
 
+roster_list = []
+
 class XmppGearsMessageProtocol(MessageProtocol):
 
     def __init__(self, jid):
@@ -182,19 +184,35 @@ class XmppGearsRosterProtocol(RosterClientProtocol):
         global roster_conn
         roster_conn = self
 
-        self.getRoster()
+        def updateRosterList(roster):
+            global roster_list
+            print roster.keys()
+            roster_list = roster.keys()
+
+        self.getRoster().addCallback(updateRosterList)
 
     def onRosterSet(self, item):
         if not item.subscriptionTo and not item.subscriptionFrom and not item.ask:
             log.msg("Subscription of %s is none" % item.jid.userhost())
 
             self.removeItem(item.jid)
+        else:
+            log.msg("RosterSet: %s" % item.jid.userhost())
+            global roster_list
+            roster_list.append(item.jid.userhost())
 
     def onRosterRemove(self, entity):
         log.msg("Roster %s removed" % entity.userhost())
 
         global presence_conn
         presence_conn._set_status(item.jid.userhost(), "unsubscribed")
+    
+        global roster_list
+        roster_list.remove(item.jid.userhost())
+
+def rosters():
+    log.msg("rosters")
+    return roster_list
 
 def typing_notification(jid):
     message_conn.typing_notification(jid)

@@ -41,6 +41,10 @@ def unsubscribe(j):
     print repr(j)
     return j
 
+def roster_list(j):
+    log.msg("roster_list")
+    return json.dumps(xmpp_protocol.rosters())
+
 def add_function(funcname, function):
     global gear_worker
     funcname = config.CONF.get("gears", "prefix")+funcname
@@ -52,6 +56,7 @@ def _register_functions():
     add_function("xmpp_presence_unsubscribe", unsubscribe)
     add_function("xmpp_message_plain", send_plain)
     add_function("xmpp_message_html", send_html)
+    add_function("xmpp_roster_list", roster_list)
 
 def _connected(gearman):
     global gear_worker
