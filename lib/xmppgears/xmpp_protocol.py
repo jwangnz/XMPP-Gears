@@ -118,15 +118,6 @@ class XmppGearsPresenceProtocol(PresenceClientProtocol):
         self.connected = None
         self.lost = time.time()
 
-        
-        # do gears
-
-    def presence_fallback(self, *stuff):
-        log.msg("Running presence fallback.")
-        self.available(None, None, {None: "Hi, everybody!"})
-
-        # do gears
-
     def _set_status(self, u, status, cb=None):
         if status is None:
             status = "available"
@@ -144,18 +135,7 @@ class XmppGearsPresenceProtocol(PresenceClientProtocol):
         log.msg("Available from %s (%s, %s, pri=%s)" % (
             entity.full(), show, statuses, priority))
 
-        # if priority >= 0 and show not in ['xa', 'dnd']:
         self._set_status(entity.userhost(), show)
-
-        """
-        if priority >= 0 and show not in ['xa', 'dnd']:
-            scheduling.available_user(entity)
-        else:
-            log.msg("Marking jid unavailable due to negative priority or "
-                    "being somewhat unavailable.")
-            scheduling.unavailable_user(entity)
-        self._find_and_set_status(entity.userhost(), show)
-        """
  
     def unavailableReceived(self, entity, statuses=None):
         log.msg("Unavailable from %s" % entity.full())

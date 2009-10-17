@@ -11,7 +11,6 @@ from xmppgears import config
 gear_client = None
 
 
-#@defer.inlineCallbacks
 def _connected(gearman):
     global gear_client
     gear_client = client.GearmanClient(gearman)

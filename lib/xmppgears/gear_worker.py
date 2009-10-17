@@ -17,7 +17,6 @@ def run_test(j):
 def update_presence(j):
     log.msg("update_presence called %s" % j)
     data = json.loads(j)
-    # xmpp_protocol.presence_conn.available(None, data["show"], {None: data["status"]}, data["priority"], data["avatar"])
     return j
 
 def send_plain(j):
