@@ -114,7 +114,6 @@ class XmppGearsPresenceProtocol(PresenceClientProtocol):
         presence_conn = self
 
         gear_client.submit("gear_presence_connected", "")
-        self.available(None, None, { None: "ddd" }, 10)
 
     def connectionLost(self, reason):
         self.connected = None
@@ -225,3 +224,6 @@ def send_html(jid, plain, html):
  
 def send_plain(jid, plain):
     message_conn.send_plain(jid, plain)
+
+def available(show=None, status=None, priority=0, avatar=None):
+    presence_conn.available(None, show, { None: status}, priority, avatar)
