@@ -15,9 +15,8 @@ def run_test(j):
     return j
 
 def update_presence(j):
-    log.msg("update_presence called %s" % j)
     data = json.loads(j)
-    return j
+    xmpp_protocol.available(data["show"], data["status"], data["priority"], data["avatar"])
 
 def send_plain(j):
     data = json.loads(j)
@@ -58,18 +57,37 @@ def _register_functions():
     add_function("xmpp_message_html", send_html)
     add_function("xmpp_roster_list", roster_list)
 
-def _connected(gearman):
-    global gear_worker
-    gear_worker = client.GearmanWorker(gearman)
-    gear_worker.setId("xmpp-gears-woker")
-    _register_functions()
+class GearmanWorkerProtocol(client.GearmanProtocol):
+    def makeConnection(self, transport):
+        global gear_worker
+        client.GearmanProtocol.makeConnection(self, transport)
+        gear_worker = client.GearmanWorker(self)
+        gear_worker.setId("xmpp-gears-woker")
+        _register_functions()
 
-    coop = task.Cooperator()
-    for i in range(5):
-        reactor.callLater(0.1 * i, lambda: coop.coiterate(gear_worker.doJobs()))
+        coop = task.Cooperator()
+        for i in range(5):
+            reactor.callLater(0.1 * i, lambda: coop.coiterate(gear_worker.doJobs()))
+
+class GearmanWorkerFactory(protocol.ReconnectingClientFactory):
+    def startedConnecting(self, connector):
+        log.msg("Started to connect gearman as worker")
+
+    def buildProtocol(self, addr):
+        self.resetDelay()
+        log.msg("Connected to gearman as worker.")
+
+        gearman = GearmanWorkerProtocol()
+        return gearman
+
+    def clientConnectionLost(self, connector, reason):
+        log.msg("Lost connection of gearman worker. Reason: %s" % reason)
+        protocol.ReconnectingClientFactory.clientConnectionLost(self, connector, reason)
+
+    def clientConnectionFailed(self, connector, reason):
+        log.msg("Connection failed of gearman worker. Reason: %s" % reason)
+        protocol.ReconnectingClientFactory.clientConnectionFailed(self, connector, reason)
 
 def connect():
-    d = protocol.ClientCreator(reactor, client.GearmanProtocol).connectTCP(
-        config.CONF.get("gears", "host"), config.CONF.getint("gears", "port"))
-    d.addCallback(_connected)
-    return d
+    connector = reactor.connectTCP(config.CONF.get("gears", "host"), config.CONF.getint("gears", "port"),
+        GearmanWorkerFactory())
